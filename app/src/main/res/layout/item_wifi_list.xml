@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
      android:layout_width="match_parent"
-    android:layout_height="70px"
+    android:layout_height="120px"
     android:id="@+id/wifi_item"
     android:background="#00ff00">
     <TextView
         android:id="@+id/tv_wifi_name"
         android:layout_width="wrap_content"
-        android:layout_height="35px"
+        android:layout_height="55px"
         android:layout_marginLeft="10px"
         android:text="zxc"
         android:textSize="20sp"/>
     <TextView
         android:id="@+id/tv_wifi_status"
         android:layout_width="wrap_content"
-        android:layout_height="35px"
+        android:layout_height="55px"
         android:layout_marginLeft="10px"
         android:layout_marginTop="5px"
         android:layout_below="@+id/tv_wifi_name"

@@ -4,11 +4,14 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.ProxyInfo;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.provider.Settings;
+import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -19,8 +22,10 @@ import com.test.mywifi.model.WifiListModel.ScanResultModel;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -80,6 +85,7 @@ public class WifiUtil {
         }
         return null;
     }
+
 
     public boolean cancleSave(String wifiSSID) {
         WifiConfiguration configuration = IsExsits(wifiSSID);
@@ -150,7 +156,17 @@ public class WifiUtil {
         }
         return false;
     }
-
+    //会清掉已保存的wifi，小心
+    public WifiConfiguration createWifiInfo(String capabilities, String SSID, String Password) {
+        if (capabilities.contains("WPA")) {
+            return createWifiInfo(SSID, Password, WifiUtil.WIFICIPHER_WPA);
+        } else if (capabilities.contains("WEP")) {
+            return createWifiInfo(SSID, Password, WifiUtil.WIFICIPHER_WEP);
+        } else if (TextUtils.isEmpty(capabilities) || "[ESS]".equals(capabilities)) {
+            return createWifiInfo(SSID, Password, WifiUtil.WIFICIPHER_NOPASS);
+        }
+        return null;
+    }
 
     /**
      * 创建保存网络信息的类
@@ -437,7 +453,232 @@ public class WifiUtil {
         return i != -1;
     }
 
+    /**
+     * 设置代理
+     *
+     * @param config
+     * @param host
+     * @param port
+     * @param exclList
+     * @param isReConnect 是否要断开重连
+     */
+    public void setWifiProxySettings(WifiConfiguration config, String host, int port, String exclList, boolean isReConnect) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            String str2 = exclList.trim();
+            List<String> list = Arrays.asList(str2.split(","));
+            setWifiProxySettingsFor21And(config, host, port, list);
+        } else {
+            setWifiProxySettingsFor19And(config, host, port, exclList);
+        }
+        if (isReConnect) {
+            mWifiManager.disconnect();
+            mWifiManager.reconnect();
+        }
+    }
+
+    /**
+     * 取消代理
+     *
+     * @param config
+     */
+    public void unSetWifiProxySettings(WifiConfiguration config) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            unSetWifiProxySettingsFor21And(config);
+        } else {
+            unSetWifiProxySettingsFor19And(config);
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void setWifiProxySettingsFor21And(WifiConfiguration config, String host, int port, List<String> exclList) {
+        ProxyInfo mInfo = ProxyInfo.buildDirectProxy(host, port);
+        if (config != null) {
+            try {
+                Class clazz = Class.forName("android.net.wifi.WifiConfiguration");
+                Class parmars = Class.forName("android.net.ProxyInfo");
+                Method method = clazz.getMethod("setHttpProxy", parmars);
+                method.invoke(config, mInfo);
+                Object mIpConfiguration = getDeclaredFieldObject(config, "mIpConfiguration");
+
+                setEnumField(mIpConfiguration, "STATIC", "proxySettings");
+                setDeclardFildObject(config, "mIpConfiguration", mIpConfiguration);
+                //save the settings
+                mWifiManager.updateNetwork(config);
+
+            } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (NoSuchFieldException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+    }
+
+    private void setWifiProxySettingsFor19And(WifiConfiguration config, String host, int port, String exclList) {
+        try {
+            Object linkProperties = getFieldObject(config, "linkProperties");
+            if (null == linkProperties) return;
+            //获取类 LinkProperties的setHttpProxy方法
+            Class<?> proxyPropertiesClass = Class.forName("android.net.ProxyProperties");
+            Class<?>[] setHttpProxyParams = new Class[1];
+            setHttpProxyParams[0] = proxyPropertiesClass;
+            Class<?> lpClass = Class.forName("android.net.LinkProperties");
+            Method setHttpProxy = lpClass.getDeclaredMethod("setHttpProxy", setHttpProxyParams);
+            setHttpProxy.setAccessible(true);
+            // 获取类 ProxyProperties的构造函数
+            Constructor<?> proxyPropertiesCtor = proxyPropertiesClass.getConstructor(String.class, int.class, String.class);
+            // 实例化类ProxyProperties
+            Object proxySettings = proxyPropertiesCtor.newInstance(host, port, exclList);
+            //pass the new object to setHttpProxy
+            Object[] params = new Object[1];
+            params[0] = proxySettings;
+            setHttpProxy.invoke(linkProperties, params);
+            setEnumField(config, "STATIC", "proxySettings");
+
+            //save the settings
+            mWifiManager.updateNetwork(config);
+        } catch (Exception e) {
+        }
+    }
+
+    private Object getFieldObject(Object obj, String name) throws SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+        Field f = obj.getClass().getField(name);
+        Object out = f.get(obj);
+        return out;
+    }
+
+    // 取消代理设置
+    private void unSetWifiProxySettingsFor19And(WifiConfiguration config) {
+        try {
+            //get the link properties from the wifi configuration
+            Object linkProperties = getFieldObject(config, "linkProperties");
+            if (null == linkProperties) return;
+            //get the setHttpProxy method for LinkProperties
+            Class<?> proxyPropertiesClass = Class.forName("android.net.ProxyProperties");
+            Class<?>[] setHttpProxyParams = new Class[1];
+            setHttpProxyParams[0] = proxyPropertiesClass;
+            Class<?> lpClass = Class.forName("android.net.LinkProperties");
+            Method setHttpProxy = lpClass.getDeclaredMethod("setHttpProxy", setHttpProxyParams);
+            setHttpProxy.setAccessible(true);
+            //pass null as the proxy
+            Object[] params = new Object[1];
+            params[0] = null;
+            setHttpProxy.invoke(linkProperties, params);
+            setEnumField(config, "NONE", "proxySettings");
+            //save the config
+            mWifiManager.updateNetwork(config);
+            mWifiManager.disconnect();
+            mWifiManager.reconnect();
+        } catch (Exception e) {
+        }
+    }
+
+    /**
+     * 取消代理设置
+     */
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void unSetWifiProxySettingsFor21And(WifiConfiguration configuration) {
+        ProxyInfo mInfo = ProxyInfo.buildDirectProxy(null, 0);
+        if (configuration != null) {
+            try {
+                Class clazz = Class.forName("android.net.wifi.WifiConfiguration");
+                Class parmars = Class.forName("android.net.ProxyInfo");
+                Method method = clazz.getMethod("setHttpProxy", parmars);
+                method.invoke(configuration, mInfo);
+                Object mIpConfiguration = getDeclaredFieldObject(configuration, "mIpConfiguration");
+                setEnumField(mIpConfiguration, "NONE", "proxySettings");
+                setDeclardFildObject(configuration, "mIpConfiguration", mIpConfiguration);
+                //保存设置
+                mWifiManager.updateNetwork(configuration);
+                mWifiManager.disconnect();
+                mWifiManager.reconnect();
+            } catch (InvocationTargetException | NoSuchMethodException | NoSuchFieldException | ClassNotFoundException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     //------------------------------以下未转正-----------------------------------------------------
+    public void getProxy(WifiConfiguration configuration) {
+    }
+    public static String[] getUserProxy(Context context) {
+        Method method = null;
+        try {
+            method = ConnectivityManager.class.getMethod("getProxy");
+        } catch (NoSuchMethodException e) {
+            // Normal situation for pre-ICS devices
+            return null;
+        } catch (Exception e) {
+            return null;
+        }
+
+        try {
+            ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            Object pp = method.invoke(connectivityManager);
+            if (pp == null)
+                return null;
+
+            return getUserProxy(pp);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+
+    private static String[] getUserProxy(Object pp) throws Exception {
+        String[] userProxy = new String[3];
+
+        String className = "android.net.ProxyProperties";
+        Class<?> c = Class.forName(className);
+        Method method;
+
+        method = c.getMethod("getHost");
+        userProxy[0] = (String) method.invoke(pp);
+
+        method = c.getMethod("getPort");
+        userProxy[1] = String.valueOf((Integer) method.invoke(pp));
+
+
+        method = c.getMethod("getExclusionList");
+        userProxy[2] = (String) method.invoke(pp);
+
+        if (userProxy[0] != null)
+            return userProxy;
+        else
+            return null;
+    }
+
+
+    public static Object getDeclaredFieldObject(Object obj, String name)
+            throws SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+        Field f = obj.getClass().getDeclaredField(name);
+        f.setAccessible(true);
+        Object out = f.get(obj);
+        return out;
+    }
+
+    public static void setDeclardFildObject(Object obj, String name, Object object) {
+        Field f = null;
+        try {
+            f = obj.getClass().getDeclaredField(name);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+        f.setAccessible(true);
+        try {
+            f.set(obj, object);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void setEnumField(Object obj, String value, String name)
+            throws SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+
+        Field f = obj.getClass().getField(name);
+        f.set(obj, Enum.valueOf((Class<Enum>) f.getType(), value));
+    }
 
 
     String ipAddress = "192.168.1.148";

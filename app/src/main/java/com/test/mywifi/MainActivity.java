@@ -17,7 +17,6 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.test.mywifi.adapter.WifiListAdapter;
 import com.test.mywifi.adapter.WifiListAdapterII;
 import com.test.mywifi.utils.WifiUtil;
 
@@ -25,7 +24,7 @@ import static android.net.wifi.WifiManager.SUPPLICANT_STATE_CHANGED_ACTION;
 import static android.net.wifi.WifiManager.WIFI_STATE_ENABLED;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener{
-
+    private static final String TAG = MainActivity.class.getSimpleName();
     private ListView lvWifi;
     private TextView tvPage;
     private Switch wifiSwitch;
@@ -55,7 +54,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
 
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
-                Log.i("setOnScrollListener","scrollState="+scrollState);
+                Log.i(TAG,"setOnScrollListener scrollState="+scrollState);
 //                if (scrollState != 0) {
 //                    type = true;
 //                } else {
@@ -65,7 +64,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                Log.i("setOnScrollListener","firstVisibleItem="+firstVisibleItem+"---visibleItemCount="+visibleItemCount+"---totalItemCount="+totalItemCount );
+                Log.i(TAG,"setOnScrollListener  firstVisibleItem="+firstVisibleItem+"---visibleItemCount="+visibleItemCount+"---totalItemCount="+totalItemCount );
                 if (totalItemCount == 0||wifiListAdapter==null) {
                     return;
                 }

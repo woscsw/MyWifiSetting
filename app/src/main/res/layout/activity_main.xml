@@ -7,40 +7,42 @@
     <Switch
         android:id="@+id/switch_wifi"
         android:layout_width="250px"
-        android:layout_height="50px"
+        android:layout_height="100px"
         android:layout_marginTop="20px"
         android:text="Wifi"
+        android:textSize="20sp"
         android:textOn="开启"
         android:textOff="关闭"/>
     <Button
         android:id="@+id/btn_scan"
-        android:layout_width="80px"
-        android:layout_height="50px"
+        android:layout_width="180px"
+        android:layout_height="100px"
         android:layout_below="@+id/switch_wifi"
         android:layout_marginTop="20px"
         android:layout_marginBottom="20px"
         android:text="扫描"/>
     <Button
         android:id="@+id/btn_pre"
-        android:layout_width="80px"
-        android:layout_height="50px"
+        android:layout_width="180px"
+        android:layout_height="100px"
         android:layout_below="@+id/btn_scan"
         android:text="上"/>
     <TextView
         android:id="@+id/tv_pageNum"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="180px"
+        android:layout_height="100px"
+        android:gravity="center"
         android:layout_below="@+id/btn_pre"/>
     <Button
         android:id="@+id/btn_next"
-        android:layout_width="80px"
-        android:layout_height="50px"
+        android:layout_width="180px"
+        android:layout_height="100px"
         android:layout_below="@+id/tv_pageNum"
         android:text="下"/>
     <Button
         android:id="@+id/btn_add_wifi"
-        android:layout_width="80px"
-        android:layout_height="50px"
+        android:layout_width="180px"
+        android:layout_height="100px"
         android:layout_below="@+id/btn_next"
         android:text="添加"/>
     <ListView

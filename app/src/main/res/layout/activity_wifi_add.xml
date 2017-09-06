@@ -110,20 +110,20 @@
     </ScrollView>
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="50px"
+        android:layout_height="100px"
         android:background="#ffaabb"
         android:layout_alignParentBottom="true">
         <TextView
             android:id="@+id/btn_cancle"
             android:layout_width="0px"
-            android:layout_height="50px"
+            android:layout_height="100px"
             android:layout_weight="1"
             android:text="取消"
             android:gravity="center"/>
         <TextView
             android:id="@+id/btn_save"
             android:layout_width="0px"
-            android:layout_height="50px"
+            android:layout_height="100px"
             android:layout_weight="1"
             android:text="保存"
             android:gravity="center"/>

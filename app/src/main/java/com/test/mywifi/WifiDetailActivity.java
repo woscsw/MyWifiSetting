@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
+import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -25,6 +26,7 @@ import com.test.mywifi.utils.WifiUtil;
  */
 
 public class WifiDetailActivity extends BaseActivity implements View.OnClickListener {
+    private final String TAG = WifiDetailActivity.class.getSimpleName();
     private EditText passwordEt;
     private WifiUtil wifiUtil;
     private WifiListModel.ScanResultModel scanResult;
@@ -63,7 +65,6 @@ public class WifiDetailActivity extends BaseActivity implements View.OnClickList
         setListener();
 
 
-        
     }
 
     private void setListener() {
@@ -134,15 +135,13 @@ public class WifiDetailActivity extends BaseActivity implements View.OnClickList
     }
 
     private void initView() {
-//        ((TextView) findViewById(R.id.tv_status_info)).setText(scanResult.);
         ((TextView) findViewById(R.id.tv_title)).setText(scanResult.SSID);
         ((TextView) findViewById(R.id.tv_signal_strength)).setText(wifiUtil.getSignalStrength(scanResult.level));
-        
+
 
         connectLayout = findViewById(R.id.layout_connect);
         notConnectLayout = findViewById(R.id.layout_not_connect);
         connectBtn = notConnectLayout.findViewById(R.id.btn_connect);
-//        ((TextView) findViewById(R.id.tv_ip_address)).setText();//未连接看不到?
         passwordEt = (EditText) findViewById(R.id.et_password);
         proxySw = ((Switch) findViewById(R.id.switch_proxy));
         ipSettingSw = ((Switch) findViewById(R.id.switch_ip_setting));
@@ -165,6 +164,7 @@ public class WifiDetailActivity extends BaseActivity implements View.OnClickList
             if (TextUtils.isEmpty(passwordEt.getText().toString())) {
                 passwordEt.setHint("(未更改)");
             }
+            String proHost = android.net.Proxy.getDefaultHost();
         } else {
             //没保存过
             notConnectLayout.findViewById(R.id.btn_cancle_save).setVisibility(View.GONE);
@@ -174,8 +174,8 @@ public class WifiDetailActivity extends BaseActivity implements View.OnClickList
         }
 
         // TODO: 2017/7/25  暂时隐藏，功能没实现
-        connectLayout.findViewById(R.id.btn_edit_wifi).setVisibility(View.GONE);
-        notConnectLayout.findViewById(R.id.btn_edit_wifi).setVisibility(View.GONE);
+//        connectLayout.findViewById(R.id.btn_edit_wifi).setVisibility(View.GONE);
+//        notConnectLayout.findViewById(R.id.btn_edit_wifi).setVisibility(View.GONE);
 
         if (wifiUtil.isConnectWifi() && scanResult.SSID.equals(wifiUtil.getSSID())) {
             //已连接
@@ -206,10 +206,10 @@ public class WifiDetailActivity extends BaseActivity implements View.OnClickList
             }
         } else if (scanResult.capabilities.contains("WPA2-PSK-CCMP")) {
             stringBuilder.append("WPA2");
-        }else if (scanResult.capabilities.contains("WEP")) {
+        } else if (scanResult.capabilities.contains("WEP")) {
             stringBuilder.append("WEP");
         } else {
-            if (TextUtils.isEmpty(scanResult.capabilities)||"[ESS]".equals(scanResult.capabilities)) {
+            if (TextUtils.isEmpty(scanResult.capabilities) || "[ESS]".equals(scanResult.capabilities)) {
                 stringBuilder.append("无");
                 findViewById(R.id.ll_password).setVisibility(View.GONE);
                 connectBtn.setEnabled(true);
@@ -236,45 +236,69 @@ public class WifiDetailActivity extends BaseActivity implements View.OnClickList
 
                 break;
             case R.id.btn_connect:
-                if (scanResult.capabilities.contains("WPA")) {
-                    if (wifiUtil.IsExsits(scanResult.SSID) == null||passwordEt.getText().length()>=8) {
-                        wifiUtil.addNetwork(wifiUtil.createWifiInfo(scanResult.SSID, passwordEt.getText().toString(), WifiUtil.WIFICIPHER_WPA));
-
-                    } else {
-                        wifiUtil.connectWifi(scanResult.SSID);
-                    }
-                } else if (scanResult.capabilities.contains("WEP")) {
-                    if (wifiUtil.IsExsits(scanResult.SSID) == null||passwordEt.getText().length()>=8) {
-                        wifiUtil.addNetwork(wifiUtil.createWifiInfo(scanResult.SSID, passwordEt.getText().toString(), WifiUtil.WIFICIPHER_WEP));
-
-                    } else {
-                        wifiUtil.connectWifi(scanResult.SSID);
-                    }
-                } else {
-                    if (TextUtils.isEmpty(scanResult.capabilities)||"[ESS]".equals(scanResult.capabilities)) {
-                        wifiUtil.addNetwork(wifiUtil.createWifiInfo(scanResult.SSID, passwordEt.getText().toString(), WifiUtil.WIFICIPHER_NOPASS));
-                    }
-                }
-                
-                finish();//无法得知wifi是否连接成功
+                connect();
                 break;
-            case R.id.btn_edit_wifi://不会自动连接网络,,,,没实现完
-                Toast.makeText(this, "修改???", Toast.LENGTH_SHORT).show();
-                if (wifiUtil.IsExsits(scanResult.SSID) != null) {
-                    //有保存的可以不填密码
+            case R.id.btn_edit_wifi://不会自动连接网络的,,,,没实现完
+                editWifi();
+                break;
+        }
+    }
 
-                }
-                if (proxySw.isChecked()) {
+    private void connect() {//不开放高级设置时，代码没问题
 
+        if (passwordEt.getText().length() >= 8) {
+            if (wifiUtil.IsExsits(scanResult.SSID) == null) {
+                Log.i(TAG, "connect: 没有保存的");
+                WifiConfiguration configuration = wifiUtil.createWifiInfo(scanResult.capabilities, scanResult.SSID, passwordEt.getText().toString());
+                wifiUtil.addNetwork(configuration);
+            } else {
+                Log.i(TAG, "connect: 有保存的");
+                wifiUtil.connectWifi(scanResult.SSID);
+            }
+        } else if (TextUtils.isEmpty(scanResult.capabilities) || "[ESS]".equals(scanResult.capabilities)) {
+            Log.i(TAG, "connect: 没有密码");
+            wifiUtil.connectWifi(scanResult.SSID);
+        } else if (wifiUtil.IsExsits(scanResult.SSID) != null) {//有保存的可以不需要修改密码
+            Log.i(TAG, "connect: 有保存的");
+            wifiUtil.connectWifi(scanResult.SSID);
+        } else {
+            Log.i(TAG, "connect: return");
+            return;
+        }
+        finish();//无法得知wifi是否连接成功，想知道就要开个广播监听
+    }
+
+    private void editWifi() {
+        WifiConfiguration configuration = null;
+        if (passwordEt.getText().length() >= 8) {//需要修改密码
+            configuration = wifiUtil.createWifiInfo(scanResult.capabilities, scanResult.SSID, passwordEt.getText().toString());
+        } else if (TextUtils.isEmpty(scanResult.capabilities) || "[ESS]".equals(scanResult.capabilities)) {//不要密码
+            configuration = wifiUtil.createWifiInfo(scanResult.capabilities, scanResult.SSID, passwordEt.getText().toString());
+        } else if (wifiUtil.IsExsits(scanResult.SSID) != null) {//有保存的可以不需要修改密码
+            configuration = wifiUtil.IsExsits(scanResult.SSID);
+        } else {
+            //条件不足,密码不全
+            return;
+        }
+
+            if (proxySw.isChecked()) {
+                if (wifiUtil.isConnectWifi() && scanResult.SSID.equals(wifiUtil.getSSID())) {
+                    wifiUtil.setWifiProxySettings(configuration, proxyHostNameEt.getText().toString(), Integer.valueOf(proxyPortEt.getText().toString()), proxyFilterEt.getText().toString(), true);
+                } else {
+                    wifiUtil.setWifiProxySettings(configuration, proxyHostNameEt.getText().toString(), Integer.valueOf(proxyPortEt.getText().toString()), proxyFilterEt.getText().toString(),false);
                 }
-                if (ipSettingSw.isChecked()) {
-                    wifiUtil.setIp(ipAddressEt.getText().toString(),
-                            Integer.parseInt(TextUtils.isEmpty(preLengthEt.getText().toString()) ? "24" : preLengthEt.getText().toString()),
-                            gatewayEt.getText().toString(), dns1Et.getText().toString(), dns2Et.getText().toString());
-                    //获得当前在已经连接的wifi配置对象
-                    WifiConfiguration configuration = wifiUtil.IsExsits(wifiUtil.getWifiInfo().getSSID());
-                    wifiUtil.confingStaticIp(configuration);
-                }
+            } else {
+                wifiUtil.unSetWifiProxySettings(configuration);
+            }
+            if (ipSettingSw.isChecked()) {
+                wifiUtil.setIp(ipAddressEt.getText().toString(),
+                        Integer.parseInt(TextUtils.isEmpty(preLengthEt.getText().toString()) ? "24" : preLengthEt.getText().toString()),
+                        gatewayEt.getText().toString(), dns1Et.getText().toString(), dns2Et.getText().toString());
+                //获得当前在已经连接的wifi配置对象
+                wifiUtil.confingStaticIp(configuration);
+            } else {
+
+            }
 //                boolean editResult = wifiUtil.updateNetwork(wifiUtil.createWifiInfo(scanResult.SSID,passwordEt.getText().toString(),WifiUtil.WIFICIPHER_WPA));
 //                if (editResult) {
 //                    Toast.makeText(this, "修改成功", Toast.LENGTH_SHORT).show();
@@ -282,7 +306,5 @@ public class WifiDetailActivity extends BaseActivity implements View.OnClickList
 //                } else {
 //                    Toast.makeText(this, "修改???", Toast.LENGTH_SHORT).show();
 //                }
-                break;
-        }
     }
 }
