@@ -16,6 +16,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.test.mywifi.R;
 import com.test.mywifi.model.WifiListModel;
 import com.test.mywifi.model.WifiListModel.ScanResultModel;
 
@@ -32,7 +33,6 @@ import java.util.List;
 
 /**
  * Created by Admin on 2017/7/21.
- * <p>
  * WifiConfiguration.SSID   WifiInfo.SSID默认带有""
  * ScanResult.SSID 不带""
  */
@@ -274,19 +274,20 @@ public class WifiUtil {
             model.level = sr.level;
             model.SSID = sr.SSID;
             resultList.add(model);
+            Log.i(TAG, "getScanResult: WifiConfiguration = "+sr.SSID);
         }
         List<WifiConfiguration> existingConfigs = mWifiManager.getConfiguredNetworks();
         List<WifiConfiguration> eCache = new ArrayList<>();
         if (existingConfigs != null) {
-            for (int i = 0; i < existingConfigs.size(); i++) {
+            for (WifiConfiguration exisConfig : existingConfigs) {
                 boolean type = true;
                 for (ScanResult sr : scanList) {
-                    if (existingConfigs.get(i).SSID.equals("\"" + sr.SSID + "\"")) {
+                    if (exisConfig.SSID.equals("\"" + sr.SSID + "\"")) {
                         type = false;
                     }
                 }
                 if (type) {
-                    eCache.add(existingConfigs.get(i));
+                    eCache.add(exisConfig);
                 }
             }
             if (eCache.size() > 0) {
@@ -297,6 +298,7 @@ public class WifiUtil {
                     model.level = -180;
                     model.SSID = ww.SSID.substring(1, ww.SSID.length() - 1);
                     resultList.add(model);
+                    Log.i(TAG, "getScanResult: WifiConfiguration = "+ww.SSID);
                 }
             }
         }
@@ -311,6 +313,7 @@ public class WifiUtil {
                     resultList.add(0, srm);
                     break;
                 }
+
             }
         }
         //边循环边删除
@@ -319,6 +322,7 @@ public class WifiUtil {
                 resultList.remove(resultList.get(i));
             }
         }
+
         return resultList;
     }
 
@@ -415,17 +419,34 @@ public class WifiUtil {
         int level = WifiManager.calculateSignalLevel(rssi, 5);
         switch (level) {
             case 0:
-                return "无信号";
+                return mContext.getString(R.string.no_signal);
             case 1:
-                return "较差";
+                return mContext.getString(R.string.worse);
             case 2:
-                return "一般";
+                return mContext.getString(R.string.general);
             case 3:
-                return "较强";
+                return mContext.getString(R.string.piu_forte);
             case 4:
-                return "强";
+                return mContext.getString(R.string.strong);
             default:
-                return "无信号";
+                return mContext.getString(R.string.no_signal);
+        }
+    }
+    public int getSignalStrengthDrawable(int rssi) {
+        int level = WifiManager.calculateSignalLevel(rssi, 5);
+        switch (level) {
+            case 0:
+                return R.drawable.ldklz_carcool_wifi_wifi0;
+            case 1:
+                return R.drawable.ldklz_carcool_wifi_wifi1;
+            case 2:
+                return R.drawable.ldklz_carcool_wifi_wifi2;
+            case 3:
+                return R.drawable.ldklz_carcool_wifi_wifi3;
+            case 4:
+                return R.drawable.ldklz_carcool_wifi_wifi4;
+            default:
+                return R.drawable.ldklz_carcool_wifi_wifi0;
         }
     }
 
@@ -438,7 +459,7 @@ public class WifiUtil {
         return mWifiInfo == null ? null : intToIp(mWifiInfo.getIpAddress());
     }
 
-    // 得到IP地址
+
     public String getLinkSpeed() {
         return mWifiInfo == null ? null : mWifiInfo.getLinkSpeed() + "Mbps";
     }
@@ -455,7 +476,6 @@ public class WifiUtil {
 
     /**
      * 设置代理
-     *
      * @param config
      * @param host
      * @param port
@@ -930,221 +950,14 @@ public class WifiUtil {
         return wcgID != -1;
     }
 
-//    public static void setIpAssignment(String assign, WifiConfiguration wifiConf)
-//            throws SecurityException, IllegalArgumentException, NoSuchFieldException, IllegalAccessException {
-//        setEnumField(wifiConf, assign, "ipAssignment");
-//    }
-
-//    public static void setIpAddress(InetAddress addr, int prefixLength, WifiConfiguration wifiConf)
-//            throws SecurityException, IllegalArgumentException, NoSuchFieldException, IllegalAccessException,
-//            NoSuchMethodException, ClassNotFoundException, InstantiationException, InvocationTargetException {
-//        Object linkProperties = getField(wifiConf, "linkProperties");
-//        if (linkProperties == null) return;
-//        Class laClass = Class.forName("android.net.LinkAddress");
-//        Constructor laConstructor = laClass.getConstructor(new Class[]{InetAddress.class, int.class});
-//        Object linkAddress = laConstructor.newInstance(addr, prefixLength);
-//        ArrayList mLinkAddresses = (ArrayList) getDeclaredField(linkProperties, "mLinkAddresses");
-//        mLinkAddresses.clear();
-//        mLinkAddresses.add(linkAddress);
-//    }
-
-//    public static void setGateway(InetAddress gateway, WifiConfiguration wifiConf) {//throws SecurityException, IllegalArgumentException, NoSuchFieldException, IllegalAccessException,
-//        //ClassNotFoundException, NoSuchMethodException, InstantiationException, InvocationTargetException
-//        Object linkProperties = null;
-//        try {
-//            linkProperties = getField(wifiConf, "linkProperties");
-//            if (linkProperties == null) return;
-//            Class routeInfoClass = Class.forName("android.net.RouteInfo");
-//            Constructor routeInfoConstructor = routeInfoClass.getConstructor(new Class[]{InetAddress.class});
-//            Object routeInfo = routeInfoConstructor.newInstance(gateway);
-//            ArrayList mRoutes = (ArrayList) getDeclaredField(linkProperties, "mRoutes");
-//            mRoutes.clear();
-//            mRoutes.add(routeInfo);
-//        } catch (NoSuchFieldException e1) {
-//            e1.printStackTrace();
-//        } catch (IllegalAccessException e1) {
-//            e1.printStackTrace();
-//        } catch (NoSuchMethodException e1) {
-//            e1.printStackTrace();
-//        } catch (InstantiationException e1) {
-//            e1.printStackTrace();
-//        } catch (InvocationTargetException e1) {
-//            e1.printStackTrace();
-//        } catch (ClassNotFoundException e1) {
-//            e1.printStackTrace();
-//        }
-//
-//    }
-
-//    public static void setDNS(InetAddress dns, WifiConfiguration wifiConf)
-//            throws SecurityException, IllegalArgumentException, NoSuchFieldException, IllegalAccessException {
-//        Object linkProperties = getField(wifiConf, "linkProperties");
-//        if (linkProperties == null) return;
-//        ArrayList<InetAddress> mDnses = (ArrayList<InetAddress>) getDeclaredField(linkProperties, "mDnses");
-//        mDnses.clear(); //or add a new dns address , here I just want to replace DNS1
-//        mDnses.add(dns);
-//    }
-//
-//    public static Object getField(Object obj, String name)
-//            throws SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-//        Field f = obj.getClass().getField(name);
-//        Object out = f.get(obj);
-//        return out;
-//    }
-
-//    public static Object getDeclaredField(Object obj, String name) {
-//        Field f = null;
-//        try {
-//            f = obj.getClass().getDeclaredField(name);
-//            f.setAccessible(true);
-//            Object out = f.get(obj);
-//            return out;
-//        } catch (NoSuchFieldException e) {
-//            e.printStackTrace();
-//        } catch (IllegalAccessException e) {
-//            e.printStackTrace();
-//        }
-//
-//    }
-
-//    public static void setEnumField(Object obj, String value, String name)
-//            throws SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-//        Field f = obj.getClass().getField(name);
-//        f.set(obj, Enum.valueOf((Class<Enum>) f.getType(), value));
-//    }
-
-    //    try{
-//        setIpAssignment("STATIC", wifiConf); //or "DHCP" for dynamic setting
-//        setIpAddress(InetAddress.getByName("192.168.0.100"), 24, wifiConf);
-//        setGateway(InetAddress.getByName("4.4.4.4"), wifiConf);
-//        setDNS(InetAddress.getByName("4.4.4.4"), wifiConf);
-//        wifiManager.updateNetwork(wifiConf); //apply the setting
-//    }catch(Exception e){
-//        e.printStackTrace();
-//    }
-//    public static void setGateway2(InetAddress gateway, WifiConfiguration wifiConf) {
-//        //throws SecurityException, IllegalArgumentException, NoSuchFieldException, IllegalAccessException,
-////                ClassNotFoundException, NoSuchMethodException, InstantiationException, InvocationTargetException
-//        Object linkProperties = null;
-//        try {
-//            linkProperties = getField(wifiConf, "linkProperties");
-//            ArrayList mGateways = (ArrayList) getDeclaredField(linkProperties, "mGateways");
-//            mGateways.clear();
-//            mGateways.add(gateway);
-//        } catch (NoSuchFieldException e) {
-//            e.printStackTrace();
-//        } catch (IllegalAccessException e) {
-//            e.printStackTrace();
-//        }
-//        if (linkProperties == null) return;
-//
-//    }
-
-    /**
-     * 获取当前手机所连接的wifi信息
-     */
-    public WifiInfo getCurrentWifiInfo() {
-        return mWifiManager.getConnectionInfo();
-    }
-
-//    /**
-//     * 添加一个网络并连接
-//     * 传入参数：WIFI发生配置类WifiConfiguration
-//     */
-//    public boolean addNetwork2(WifiConfiguration wcg) {
-//        int wcgID = mWifiManager.addNetwork(wcg);
-//        return mWifiManager.enableNetwork(wcgID, true);
-//    }
-
-    /**
-     * 搜索附近的热点信息，并返回所有热点为信息的SSID集合数据
-     */
-    public List<String> getScanSSIDsResult() {
-        // 扫描的热点数据
-        List<ScanResult> resultList;
-        // 开始扫描热点
-        mWifiManager.startScan();
-        resultList = mWifiManager.getScanResults();
-        ArrayList<String> ssids = new ArrayList<String>();
-        if (resultList != null) {
-            for (ScanResult scan : resultList) {
-                ssids.add(scan.SSID);// 遍历数据，取得ssid数据集
-            }
-        }
-        return ssids;
-    }
 
 
-    /**
-     * 得到手机搜索到的ssid集合，从中判断出设备的ssid（dssid）
-     */
-//    public List<String> accordSsid() {
-//        List<String> s = getScanSSIDsResult();
-//        List<String> result = new ArrayList<String>();
-//        for (String str : s) {
-//            if (checkDssid(str)) {
-//                result.add(str);
-//            }
-//        }
-//        return result;
-//    }
-
-    /**
-     * 检测指定ssid是不是匹配的ssid，目前支持GBELL，TOP,后续可添加。
-     *
-     * @param ssid
-     * @return
-     */
-    private boolean checkDssid(String ssid, String condition) {
-        if (!TextUtils.isEmpty(ssid) && !TextUtils.isEmpty(condition)) {
-            //这里条件根据自己的需求来判断，我这里就是随便写的一个条件
-            if (ssid.length() > 8 && (ssid.substring(0, 8).equals(condition))) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * 连接wifi
-     * 参数：wifi的ssid及wifi的密码
-     */
-//    public boolean connectWifiTest(final String ssid, final String pwd) {
-//        boolean isSuccess = false;
-//        boolean flag = false;
-//        mWifiManager.disconnect();
-//        boolean addSucess = addNetwork(CreateWifiInfo(ssid, pwd, 3));
-//        if (addSucess) {
-//            while (!flag && !isSuccess) {
-//                try {
-//                    Thread.sleep(10000);
-//                } catch (InterruptedException e1) {
-//                    e1.printStackTrace();
-//                }
-//                String currSSID = getCurrentWifiInfo().getSSID();
-//                if (currSSID != null)
-//                    currSSID = currSSID.replace("\"", "");
-//                int currIp = getCurrentWifiInfo().getIpAddress();
-//                if (currSSID != null && currSSID.equals(ssid) && currIp != 0) {
-//                    //这里还需要做优化处理，增强结果判断 
-//                    isSuccess = true;
-//                } else {
-//                    flag = true;
-//                }
-//            }
-//        }
-//        return isSuccess;
-//
-//    }
 
 
     //--------------------------------------------------------------------
-    // 网络连接列表  
+    // 网络连接列表
     private List<WifiConfiguration> mWifiConfiguration;
-    // 定义一个WifiLock  
+    // 定义一个WifiLock
     android.net.wifi.WifiManager.WifiLock mWifiLock;
 
 
@@ -1166,31 +979,6 @@ public class WifiUtil {
         mWifiLock = mWifiManager.createWifiLock("Test");
     }
 
-    // 得到配置好的网络  
-    public List<WifiConfiguration> getConfiguration() {
-        return mWifiConfiguration;
-    }
-
-    // 指定配置好的网络进行连接  
-    public void connectConfiguration(int index) {
-        // 索引大于配置好的网络索引返回  
-        if (index > mWifiConfiguration.size()) {
-            return;
-        }
-        // 连接配置好的指定ID的网络  
-        mWifiManager.enableNetwork(mWifiConfiguration.get(index).networkId,
-                true);
-    }
-
-    // 得到MAC地址  
-    public String getMacAddress() {
-        return (mWifiInfo == null) ? "NULL" : mWifiInfo.getMacAddress();
-    }
-
-    // 得到接入点的BSSID  
-    public String getBSSID() {
-        return (mWifiInfo == null) ? "NULL" : mWifiInfo.getBSSID();
-    }
 
 
     // 得到连接的ID
@@ -1211,7 +999,6 @@ public class WifiUtil {
     }
 
 
-    //------***************************************************************************
 
 
 }

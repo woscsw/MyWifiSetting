@@ -11,13 +11,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ListView;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.test.mywifi.adapter.WifiListAdapterII;
+import com.test.mywifi.model.WifiListModel;
 import com.test.mywifi.utils.WifiUtil;
 
 import static android.net.wifi.WifiManager.SUPPLICANT_STATE_CHANGED_ACTION;
@@ -27,7 +28,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
     private static final String TAG = MainActivity.class.getSimpleName();
     private ListView lvWifi;
     private TextView tvPage;
-    private Switch wifiSwitch;
+    private CheckBox wifiCheck;
     private View tvWifiOff;
     private WifiListAdapterII wifiListAdapter;
     private WifiUtil wifiUtil;
@@ -39,8 +40,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        wifiSwitch = (Switch) findViewById(R.id.switch_wifi);
+        setContentView(R.layout.ldklz_carcool_wifi_activity_main);
+        wifiCheck = (CheckBox) findViewById(R.id.chk_wifi);
         tvPage = (TextView) findViewById(R.id.tv_pageNum);
         wifiUtil = new WifiUtil(this);
         progressbarV =findViewById(R.id.progressbar);
@@ -92,7 +93,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
 //                tvPage.setText(pageNum+"/"+pageSize);
             }
         });
-        wifiListAdapter = new WifiListAdapterII(this);
+        wifiListAdapter = new WifiListAdapterII(this, new WifiListAdapterII.OnItemClickListener() {
+            @Override
+            public void onItemClick(WifiListModel.ScanResultModel data) {
+                new WifiDetailDialog(MainActivity.this,data).show();
+            }
+        });
         lvWifi.setAdapter(wifiListAdapter);
         if (wifiUtil.checkState() == WIFI_STATE_ENABLED) {
             if (wifiListAdapter != null && wifiUtil != null) {
@@ -103,23 +109,23 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
                 tvPage.setText(wifiListAdapter.getPageNum() + "/" + wifiListAdapter.getMaxSize());
             }
 
-            wifiSwitch.setChecked(true);
+            wifiCheck.setChecked(true);
         } else {
             progressbarV.setVisibility(View.GONE);
             tvWifiOff.setVisibility(View.VISIBLE);
-            wifiSwitch.setChecked(false);
+            wifiCheck.setChecked(false);
         }
-        wifiSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        wifiCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (isChecked) {
-                    wifiSwitch.setEnabled(false);
+                    wifiCheck.setEnabled(false);
                     wifiUtil.openWifi();
                     progressbarV.setVisibility(View.VISIBLE);
                     tvWifiOff.setVisibility(View.GONE);
                 }
                 else {
-                    wifiSwitch.setEnabled(false);
+                    wifiCheck.setEnabled(false);
                     wifiUtil.closeWifi();
                     wifiListAdapter.setData(null);
                     tvPage.setText("");
@@ -141,12 +147,15 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
         registerReceiver(mReceiver, wifiFilter);
         
     }
+    private void showDialog(WifiListModel.ScanResultModel data) {
 
+    }
     @Override
     protected void onResume() {
         super.onResume();
-        if (wifiUtil.checkState() == WIFI_STATE_ENABLED) {
-            if (wifiListAdapter != null && wifiUtil != null) {
+        if (wifiUtil!=null&&wifiUtil.checkState() == WIFI_STATE_ENABLED) {
+            Log.i(TAG, "onResume: ");
+            if (wifiListAdapter != null) {
                 wifiListAdapter.setData(wifiUtil.getScanResult());
 //                visibleCount = -1;
                 pageNum = 1;
@@ -221,8 +230,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
                 break;
             case R.id.btn_add_wifi:
                 if (wifiUtil.checkState() == WIFI_STATE_ENABLED) {
-                    Intent intent = new Intent(this,WifiAddActivity.class);
-                    startActivity(intent);
+                    new WifiAddDialog(this).show();
                 }
                 break;
         }
@@ -247,7 +255,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
                     Toast.makeText(MainActivity.this, "wifi已断开", Toast.LENGTH_SHORT).show();
                     wifiListAdapter.reSetConnectingSSID();
                     wifiListAdapter.notifyDataSetChanged();
-                    if (wifiSwitch.isChecked()) {
+                    if (wifiCheck.isChecked()) {
                         tvPage.setText(wifiListAdapter.getPageNum() + "/" + wifiListAdapter.getMaxSize());
                     } else {
                         tvPage.setText("");
@@ -352,22 +360,22 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
 
             switch (state) {
                 case WifiManager.WIFI_STATE_ENABLED://打开WiFi  
-                    wifiSwitch.setEnabled(true);
-                    wifiSwitch.setChecked(true);
+                    wifiCheck.setEnabled(true);
+                    wifiCheck.setChecked(true);
                     return; // not break, to avoid the call to pause() below  
 
                 case WifiManager.WIFI_STATE_ENABLING://正在打开WiFi  
-                    wifiSwitch.setEnabled(false);
+                    wifiCheck.setEnabled(false);
                     break;
                 case WifiManager.WIFI_STATE_DISABLING://正在关闭WiFi  
-                    wifiSwitch.setEnabled(false);
+                    wifiCheck.setEnabled(false);
                     break;
                 case WifiManager.WIFI_STATE_DISABLED://关闭WiFi  
                     //用户可以在wlan-->高级选项中去设置时是否随时都可以扫描（关闭WiFi后也可以扫描），根据用户的选择，  
                     //设置在关闭WLAN后显示界面上的文本  
 //                    setOffMessage();
-                    wifiSwitch.setEnabled(true);
-                    wifiSwitch.setChecked(false);
+                    wifiCheck.setEnabled(true);
+                    wifiCheck.setChecked(false);
                     wifiListAdapter.removeAllErrorSSID();
                     break;
             }

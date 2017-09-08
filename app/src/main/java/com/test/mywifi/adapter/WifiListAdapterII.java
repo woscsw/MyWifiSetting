@@ -1,7 +1,6 @@
 package com.test.mywifi.adapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,8 +10,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.test.mywifi.R;
-import com.test.mywifi.WifiDetailActivity;
-import com.test.mywifi.model.WifiListModel;
 import com.test.mywifi.model.WifiListModel.ScanResultModel;
 import com.test.mywifi.utils.WifiUtil;
 
@@ -24,7 +21,7 @@ import static android.net.wifi.WifiManager.WIFI_STATE_ENABLING;
 /**
  * Created by Admin on 2017/7/21.
  */
-public class WifiListAdapterII extends BaseAdapter implements View.OnClickListener {
+public class WifiListAdapterII extends BaseAdapter{
     private Context context;
     private WifiUtil wifiUtil;
     private int pageNum = 0;//当前页数
@@ -33,8 +30,9 @@ public class WifiListAdapterII extends BaseAdapter implements View.OnClickListen
     private String connectingSSID;
     private List<ScanResultModel> datas;
 
-    public WifiListAdapterII(Context context) {
+    public WifiListAdapterII(Context context,OnItemClickListener itemClickListener) {
         this.context = context;
+        this.itemClickListener = itemClickListener;
         wifiUtil = new WifiUtil(context);
     }
 
@@ -152,21 +150,28 @@ public class WifiListAdapterII extends BaseAdapter implements View.OnClickListen
         return position;
     }
 
+    private OnItemClickListener itemClickListener;
+    public interface OnItemClickListener {
+        void onItemClick(ScanResultModel data);
+    }
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.item_wifi_list, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.ldklz_carcool_wifi_item_wifi_list, parent, false);
         }
         View itemView = convertView.findViewById(R.id.wifi_item);
         TextView tvName = (TextView) convertView.findViewById(R.id.tv_wifi_name);
         TextView tvStatus = (TextView) convertView.findViewById(R.id.tv_wifi_status);
         ImageView ivStatus = (ImageView) convertView.findViewById(R.id.iv_wifi_status);
+        ImageView ivProtection = (ImageView) convertView.findViewById(R.id.iv_wifi_protection);
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(context, WifiDetailActivity.class);
-                intent.putExtra("data", datas.get(position));
-                context.startActivity(intent);
+//                Intent intent = new Intent(context, WifiDetailDialog.class);
+//                intent.putExtra("data", datas.get(position));
+//                context.startActivity(intent);
+                //
+                itemClickListener.onItemClick(datas.get(position));
             }
         });
         tvName.setText(datas.get(position).SSID);
@@ -183,22 +188,23 @@ public class WifiListAdapterII extends BaseAdapter implements View.OnClickListen
             stringBuilder.append("WEP");
         } else if (TextUtils.isEmpty(str) || "[ESS]".equals(str)) {
             stringBuilder.append("无");
+            ivProtection.setImageResource(R.drawable.ldklz_carcool_wifi_suokai);
         }
         if (wifiUtil.IsExsits(datas.get(position).SSID) != null) {
             //已保存
             if (wifiUtil.isConnectWifi() && datas.get(position).SSID.equals(wifiUtil.getSSID())) {
                 //已连接当前wifi
-                tvStatus.setText("已连接");
+                tvStatus.setText(context.getString(R.string.connected));
             } else if (wifiUtil.checkState() == WIFI_STATE_ENABLING) {
 
             } else if ("无".equals(stringBuilder.toString())) {
-                tvStatus.setText("已保存");
+                tvStatus.setText(context.getString(R.string.saved));
             } else {
-                tvStatus.setText("已保存,通过 " + stringBuilder.toString() + " 保护");
+                tvStatus.setText(context.getString(R.string.saved_by)+" " + stringBuilder.toString() + context.getString(R.string.protection));
             }
 
         } else {
-            tvStatus.setText("通过 " + stringBuilder.toString() + " 保护");
+            tvStatus.setText(context.getString(R.string.by)+" " + stringBuilder.toString() + context.getString(R.string.protection));
             if ("无".equals(stringBuilder.toString())) {
                 tvStatus.setText("");
             }
@@ -207,13 +213,13 @@ public class WifiListAdapterII extends BaseAdapter implements View.OnClickListen
         if (errorList.size() > 0) {
             for (String s : errorList) {
                 if (s.equals("\"" + datas.get(position).SSID + "\"")) {
-                    tvStatus.setText("身份验证出现问题");
+                    tvStatus.setText(context.getString(R.string.authentication_error));
                 }
             }
         }
         if (connectingSSID != null) {
             if (connectingSSID.equals("\"" + datas.get(position).SSID + "\"")) {
-                tvStatus.setText("连接中...");
+                tvStatus.setText(context.getString(R.string.connecting));
                 itemView.setEnabled(false);
             } else {
                 itemView.setEnabled(true);
@@ -221,26 +227,7 @@ public class WifiListAdapterII extends BaseAdapter implements View.OnClickListen
         } else {
             itemView.setEnabled(true);
         }
-        switch (wifiUtil.getSignalStrength(datas.get(position).level)) {
-            case "无信号":
-                ivStatus.setImageResource(R.drawable.wifi_n);
-                break;
-            case "较差":
-                ivStatus.setImageResource(R.drawable.wifi1);
-                break;
-            case "一般":
-                ivStatus.setImageResource(R.drawable.wifi2);
-                break;
-            case "较强":
-                ivStatus.setImageResource(R.drawable.wifi3);
-                break;
-            case "强":
-                ivStatus.setImageResource(R.drawable.wifi4);
-                break;
-            default:
-                ivStatus.setImageResource(R.drawable.wifi_n);
-                break;
-        }
+        ivStatus.setImageResource(wifiUtil.getSignalStrengthDrawable(datas.get(position).level));
 //            tvStatus.setText();
         //已连接
         //已保存，通过WPA2进行保护
@@ -278,14 +265,6 @@ public class WifiListAdapterII extends BaseAdapter implements View.OnClickListen
         return convertView;
     }
 
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.wifi_item:
-
-                break;
-        }
-    }
 
 //        @Override
 //        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="no_signal">No Signal</string>
+    <string name="worse">Worse</string>
+    <string name="general">General</string>
+    <string name="piu_forte">piu forte</string>
+    <string name="strong">Strong</string>
+    <string name="scan">Scan</string>
+    <string name="prev_page">Previous page</string>
+    <string name="next_page">Next page</string>
+    <string name="add">Add</string>
+    <string name="connected">Connected</string>
+    <string name="saved">Saved</string>
+    <string name="saved_by">Saved, protected by  </string>
+    <string name="by">Protected by</string>
+    <string name="protection"> </string>
+    <string name="connecting">Connecting...</string>
+    <string name="authentication_error">There is a problem with authentication</string>
+    <string name="wifi_connected">wifi Connected</string>
+    <string name="wifi_failure">failure</string>
+    <string name="wifi_existed">existed</string>
+</resources>

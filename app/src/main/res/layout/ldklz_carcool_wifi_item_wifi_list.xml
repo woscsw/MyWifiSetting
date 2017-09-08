@@ -2,13 +2,13 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
      android:layout_width="match_parent"
     android:layout_height="120px"
-    android:id="@+id/wifi_item"
-    android:background="#00ff00">
+    android:id="@+id/wifi_item">
     <TextView
         android:id="@+id/tv_wifi_name"
         android:layout_width="wrap_content"
         android:layout_height="55px"
         android:layout_marginLeft="10px"
+        android:textColor="#ffffff"
         android:text="zxc"
         android:textSize="20sp"/>
     <TextView
@@ -17,15 +17,24 @@
         android:layout_height="55px"
         android:layout_marginLeft="10px"
         android:layout_marginTop="5px"
+        android:textColor="#ffffff"
         android:layout_below="@+id/tv_wifi_name"
         android:textSize="20sp"
         android:text="未连接"/>
     <ImageView
-        android:id="@+id/iv_wifi_status"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/iv_wifi_protection"
+        android:layout_width="60px"
+        android:layout_height="60px"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_marginRight="20px"
-        android:src="@mipmap/ic_launcher"/>
+        android:layout_marginRight="120px"
+        android:src="@drawable/ldklz_carcool_wifi_suo"/>
+    <ImageView
+        android:id="@+id/iv_wifi_status"
+        android:layout_width="60px"
+        android:layout_height="60px"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="40px"
+        android:src="@drawable/ldklz_carcool_wifi_wifi1"/>
 </RelativeLayout>

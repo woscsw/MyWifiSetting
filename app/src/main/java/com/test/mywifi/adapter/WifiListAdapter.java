@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.test.mywifi.R;
-import com.test.mywifi.WifiDetailActivity;
+import com.test.mywifi.WifiDetailDialog;
 import com.test.mywifi.model.WifiListModel;
 import com.test.mywifi.model.WifiListModel.ScanResultModel;
 import com.test.mywifi.utils.WifiUtil;
@@ -24,7 +24,6 @@ import static android.net.wifi.WifiManager.WIFI_STATE_ENABLING;
 /**
  * Created by Admin on 2017/7/21.
  */
-
 public class WifiListAdapter extends BaseAdapter implements View.OnClickListener {
     private Context context;
     private WifiUtil wifiUtil;
@@ -160,7 +159,7 @@ public class WifiListAdapter extends BaseAdapter implements View.OnClickListener
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
             if (convertView == null) {
-                convertView = LayoutInflater.from(context).inflate(R.layout.item_wifi_list, parent, false);
+                convertView = LayoutInflater.from(context).inflate(R.layout.ldklz_carcool_wifi_item_wifi_list, parent, false);
             }
             View itemView = convertView.findViewById(R.id.wifi_item);
             TextView tvName = (TextView) convertView.findViewById(R.id.tv_wifi_name);
@@ -169,7 +168,7 @@ public class WifiListAdapter extends BaseAdapter implements View.OnClickListener
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent(context, WifiDetailActivity.class);
+                    Intent intent = new Intent(context, WifiDetailDialog.class);
                     intent.putExtra("data",  datas.get(pageNum).getData().get(position));
                     context.startActivity(intent);
                 }
@@ -229,22 +228,22 @@ public class WifiListAdapter extends BaseAdapter implements View.OnClickListener
             }
             switch (wifiUtil.getSignalStrength(datas.get(pageNum).getData().get(position).level)) {
                 case "无信号":
-                    ivStatus.setImageResource(R.drawable.wifi_n);
+                    ivStatus.setImageResource(R.drawable.ldklz_carcool_wifi_wifi0);
                     break;
                 case "较差":
-                    ivStatus.setImageResource(R.drawable.wifi1);
+                    ivStatus.setImageResource(R.drawable.ldklz_carcool_wifi_wifi1);
                     break;
                 case "一般":
-                    ivStatus.setImageResource(R.drawable.wifi2);
+                    ivStatus.setImageResource(R.drawable.ldklz_carcool_wifi_wifi2);
                     break;
                 case "较强":
-                    ivStatus.setImageResource(R.drawable.wifi3);
+                    ivStatus.setImageResource(R.drawable.ldklz_carcool_wifi_wifi3);
                     break;
                 case "强":
-                    ivStatus.setImageResource(R.drawable.wifi4);
+                    ivStatus.setImageResource(R.drawable.ldklz_carcool_wifi_wifi4);
                     break;
                 default:
-                    ivStatus.setImageResource(R.drawable.wifi_n);
+                    ivStatus.setImageResource(R.drawable.ldklz_carcool_wifi_wifi0);
                     break;
             }
 //            tvStatus.setText();

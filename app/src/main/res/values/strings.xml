@@ -1,3 +1,22 @@
 <resources>
     <string name="app_name">MyWifi</string>
+    <string name="no_signal">无信号</string>
+    <string name="worse">较差</string>
+    <string name="general">一般</string>
+    <string name="piu_forte">较强</string>
+    <string name="strong">强</string>
+    <string name="scan">扫描</string>
+    <string name="prev_page">上一页</string>
+    <string name="next_page">下一页</string>
+    <string name="add">添加</string>
+    <string name="connected">已连接</string>
+    <string name="saved">已保存</string>
+    <string name="saved_by">已保存,通过</string>
+    <string name="by">通过</string>
+    <string name="protection">保护</string>
+    <string name="connecting">连接中...</string>
+    <string name="authentication_error">身份验证出现问题</string>
+    <string name="wifi_connected">wifi已连接</string>
+    <string name="wifi_failure">失败</string>
+    <string name="wifi_existed">已存在</string>
 </resources>

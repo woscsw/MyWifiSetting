@@ -1,5 +1,7 @@
 package com.test.mywifi;
 
+import android.app.AlertDialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -18,7 +20,7 @@ import com.test.mywifi.utils.WifiUtil;
  * Created by Admin on 2017/7/24.
  */
 
-public class WifiAddActivity extends BaseActivity implements View.OnClickListener {
+public class WifiAddDialog extends AlertDialog implements View.OnClickListener {
 
     private EditText ssidEt;
     private EditText passwordEt;
@@ -28,11 +30,18 @@ public class WifiAddActivity extends BaseActivity implements View.OnClickListene
     private View passwordV;
     private int type = WifiUtil.WIFICIPHER_NOPASS;
     private WifiUtil wifiUtil;
+    private Context context;
+    protected WifiAddDialog(Context context) {
+        super(context);
+        this.context = context;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setView(new EditText(context));
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_wifi_add);
-        wifiUtil = new WifiUtil(this);
+        setContentView(R.layout.ldklz_carcool_wifi_dialog_wifi_add);
+        wifiUtil = new WifiUtil(context);
         ssidEt = (EditText) findViewById(R.id.et_wifi_ssid);
         passwordEt = (EditText) findViewById(R.id.et_password);
         typeRG = (RadioGroup) findViewById(R.id.rg_type);
@@ -143,18 +152,18 @@ public class WifiAddActivity extends BaseActivity implements View.OnClickListene
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_cancle:
-                finish();
+                dismiss();//finish();
                 break;
             case R.id.btn_save://添加并连接
                 if (wifiUtil.IsExsits(ssidEt.getText().toString()) == null) {
                     if(wifiUtil.addNetwork(wifiUtil.createWifiInfo(ssidEt.getText().toString(), passwordEt.getText().toString(), type))) {
-//                    Toast.makeText(WifiAddActivity.this, "成功", Toast.LENGTH_SHORT).show();
-                        finish();
+//                    Toast.makeText(WifiAddDialog.this, "成功", Toast.LENGTH_SHORT).show();
+                        dismiss();// finish();
                     } else {
-                        Toast.makeText(WifiAddActivity.this, "失败", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, context.getString(R.string.wifi_failure), Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    Toast.makeText(WifiAddActivity.this, ssidEt.getText().toString()+" 已存在", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, ssidEt.getText().toString()+context.getString(R.string.wifi_existed), Toast.LENGTH_SHORT).show();
 //                    wifiUtil.connectWifi(ssidEt.getText().toString());
                 }
                 

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="no_signal">أي إشارة</string>
+    <string name="worse">الفقراء</string>
+    <string name="general">عام</string>
+    <string name="piu_forte">أقوى</string>
+    <string name="strong">قوي</string>
+    <string name="scan">مسح</string>
+    <string name="prev_page">الصفحة السابقة</string>
+    <string name="next_page">الصفحة التالية</string>
+    <string name="add">إضافة</string>
+    <string name="connected">متصل</string>
+    <string name="saved">تم حفظه</string>
+    <string name="saved_by"> الحماية</string>
+    <string name="by">يحميها</string>
+    <string name="protection">تم حفظها بواسطة </string>
+    <string name="connecting">في اتصال...</string>
+    <string name="authentication_error">هناك مشكلة في المصادقة</string>
+    <string name="wifi_connected">واي فاي متصل</string>
+    <string name="wifi_failure">فشل</string>
+    <string name="wifi_existed">موجود بالفعل</string>
+</resources>

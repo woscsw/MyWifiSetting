@@ -1,8 +1,9 @@
 package com.test.mywifi;
 
-import android.content.Intent;
+import android.content.Context;
 import android.net.wifi.WifiConfiguration;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -15,7 +16,6 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.test.mywifi.model.WifiListModel;
 import com.test.mywifi.utils.WifiUtil;
@@ -25,8 +25,8 @@ import com.test.mywifi.utils.WifiUtil;
  * Created by Admin on 2017/7/21.
  */
 
-public class WifiDetailActivity extends BaseActivity implements View.OnClickListener {
-    private final String TAG = WifiDetailActivity.class.getSimpleName();
+public class WifiDetailDialog extends AlertDialog implements View.OnClickListener {
+    private final String TAG = WifiDetailDialog.class.getSimpleName();
     private EditText passwordEt;
     private WifiUtil wifiUtil;
     private WifiListModel.ScanResultModel scanResult;
@@ -44,23 +44,21 @@ public class WifiDetailActivity extends BaseActivity implements View.OnClickList
     private EditText proxyHostNameEt;//代理主机名
     private EditText proxyPortEt;//代理端口
     private EditText proxyFilterEt;//代理过滤
+    private Context context;
+    protected WifiDetailDialog(Context context, WifiListModel.ScanResultModel scanResult) {
+        super(context);
+        this.context = context;
+        this.scanResult = scanResult;
+    }
 
-    /**
-     * 已连接		取消  取消保存    修改网络
-     * 已保存		取消  取消保存    修改网络    连接
-     * 未保存		取消  连接
-     * <p>
-     * 未连接时只显示  信号强度、安全性
-     *
-     * @param savedInstanceState
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setView(new EditText(context));
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_wifi_detail);
-        wifiUtil = new WifiUtil(this);
-        Intent intent = getIntent();
-        scanResult = intent.getParcelableExtra("data");
+        setContentView(R.layout.ldklz_carcool_wifi_dialog_wifi_detail);
+        wifiUtil = new WifiUtil(context);
+//        Intent intent = getIntent();
+//        scanResult = intent.getParcelableExtra("data");
         initView();
         setListener();
 
@@ -126,7 +124,6 @@ public class WifiDetailActivity extends BaseActivity implements View.OnClickList
                     findViewById(R.id.ll_ip_setting).setVisibility(View.VISIBLE);
                     //
 
-
                 } else {
                     findViewById(R.id.ll_ip_setting).setVisibility(View.GONE);
                 }
@@ -174,8 +171,8 @@ public class WifiDetailActivity extends BaseActivity implements View.OnClickList
         }
 
         // TODO: 2017/7/25  暂时隐藏，功能没实现
-//        connectLayout.findViewById(R.id.btn_edit_wifi).setVisibility(View.GONE);
-//        notConnectLayout.findViewById(R.id.btn_edit_wifi).setVisibility(View.GONE);
+        connectLayout.findViewById(R.id.btn_edit_wifi).setVisibility(View.GONE);
+        notConnectLayout.findViewById(R.id.btn_edit_wifi).setVisibility(View.GONE);
 
         if (wifiUtil.isConnectWifi() && scanResult.SSID.equals(wifiUtil.getSSID())) {
             //已连接
@@ -186,7 +183,7 @@ public class WifiDetailActivity extends BaseActivity implements View.OnClickList
             findViewById(R.id.ll_ip_address).setVisibility(View.VISIBLE);
             findViewById(R.id.ll_password).setVisibility(View.GONE);
 
-            ((TextView) findViewById(R.id.tv_status_info)).setText("已连接");
+            ((TextView) findViewById(R.id.tv_status_info)).setText(context.getResources().getString(R.string.connected));
             ((TextView) findViewById(R.id.tv_connection_speed)).setText(wifiUtil.getLinkSpeed() + "");
             ((TextView) findViewById(R.id.tv_ip_address)).setText(wifiUtil.getIPAddress() + "");
         } else {
@@ -223,15 +220,15 @@ public class WifiDetailActivity extends BaseActivity implements View.OnClickList
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_cancle:
-                finish();
+                dismiss();//finish();
                 break;
             case R.id.btn_cancle_save:
                 boolean cancleBl = wifiUtil.cancleSave(scanResult.SSID);
                 if (cancleBl) {
-                    Toast.makeText(this, "取消保存成功", Toast.LENGTH_SHORT).show();
-                    finish();
+                    Log.i(TAG, "onClick: 取消保存成功");
+                    dismiss();//finish();
                 } else {
-                    Toast.makeText(this, "取消保存失败", Toast.LENGTH_SHORT).show();
+                    Log.i(TAG, "onClick: 取消保存失败");
                 }
 
                 break;
@@ -252,8 +249,10 @@ public class WifiDetailActivity extends BaseActivity implements View.OnClickList
                 WifiConfiguration configuration = wifiUtil.createWifiInfo(scanResult.capabilities, scanResult.SSID, passwordEt.getText().toString());
                 wifiUtil.addNetwork(configuration);
             } else {
-                Log.i(TAG, "connect: 有保存的");
-                wifiUtil.connectWifi(scanResult.SSID);
+                Log.i(TAG, "connect: 有保存的");//需要修改密码
+                WifiConfiguration configuration = wifiUtil.createWifiInfo(scanResult.capabilities, scanResult.SSID, passwordEt.getText().toString());
+                wifiUtil.addNetwork(configuration);
+//                wifiUtil.connectWifi(scanResult.SSID);
             }
         } else if (TextUtils.isEmpty(scanResult.capabilities) || "[ESS]".equals(scanResult.capabilities)) {
             Log.i(TAG, "connect: 没有密码");
@@ -265,7 +264,7 @@ public class WifiDetailActivity extends BaseActivity implements View.OnClickList
             Log.i(TAG, "connect: return");
             return;
         }
-        finish();//无法得知wifi是否连接成功，想知道就要开个广播监听
+        dismiss();//finish();//无法得知wifi是否连接成功，想知道就要开个广播监听
     }
 
     private void editWifi() {

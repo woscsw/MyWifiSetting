@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
      android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="10px">
+    android:layout_height="700px"
+    android:background="#000000">
     <TextView
         android:id="@+id/tv_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="#ffffff"
         android:textSize="30sp"/>
     <ScrollView
         android:layout_width="match_parent"
@@ -25,12 +26,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="状态信息"
+                    android:textColor="#ffffff"
                     android:textSize="22sp"/>
                 <TextView
                     android:id="@+id/tv_status_info"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="50px"
+                    android:textColor="#ffffff"
                     android:text="链接状态"
                     android:textSize="22sp"/>
             </LinearLayout>
@@ -41,6 +44,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="信号强度"
+                    android:textColor="#ffffff"
                     android:textSize="22sp"/>
                 <TextView
                     android:id="@+id/tv_signal_strength"
@@ -48,6 +52,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="50px"
                     android:text="好强"
+                    android:textColor="#ffffff"
                     android:textSize="22sp"/>
             </LinearLayout>
             <LinearLayout
@@ -58,12 +63,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="连接速度"
+                    android:textColor="#ffffff"
                     android:textSize="22sp"/>
                 <TextView
                     android:id="@+id/tv_connection_speed"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="50px"
+                    android:textColor="#ffffff"
                     android:text="kuai"
                     android:textSize="22sp"/>
             </LinearLayout>
@@ -74,6 +81,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="安全性"
+                    android:textColor="#ffffff"
                     android:textSize="22sp"/>
                 <TextView
                     android:id="@+id/tv_security"
@@ -81,6 +89,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="50px"
                     android:text="kuai"
+                    android:textColor="#ffffff"
                     android:textSize="22sp"/>
             </LinearLayout>
             <LinearLayout
@@ -91,12 +100,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="IP地址"
+                    android:textColor="#ffffff"
                     android:textSize="22sp"/>
                     <TextView
                         android:id="@+id/tv_ip_address"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="50px"
+                        android:textColor="#ffffff"
                         android:text="kuai"
                         android:textSize="22sp"/>
                 
@@ -110,6 +121,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="密码"
+                    android:textColor="#ffffff"
                     android:textSize="22sp"/>
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -124,12 +136,14 @@
                         android:inputType="textPassword"
                         android:text=""
                         android:textSize="22sp"
+                        android:textColor="#ffffff"
                         android:hint=""/>
                     <CheckBox
                         android:id="@+id/cb_password"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="显示密码"
+                        android:textColor="#ffffff"
                         android:checked="false"/>
                 </LinearLayout>
             </LinearLayout>
@@ -137,7 +151,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:visibility="visible">
+                android:visibility="gone">
                 <!--<TextView-->
                     <!--android:layout_width="wrap_content"-->
                     <!--android:layout_height="wrap_content"-->
@@ -165,6 +179,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textSize="22sp"
+                            android:textColor="#ffffff"
                             android:text="代理服务器主机名"/>
                         <EditText
                             android:id="@+id/et_proxy_host_name"
@@ -172,6 +187,7 @@
                             android:layout_height="wrap_content"
                             android:inputType="text"
                             android:text=""
+                            android:textColor="#ffffff"
                             android:textSize="22sp"
                             android:hint="proxy.example.com"/>
                     </LinearLayout>
@@ -182,6 +198,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textSize="22sp"
+                            android:textColor="#ffffff"
                             android:text="代理服务器端口"/>
                         <EditText
                             android:id="@+id/et_proxy_port"
@@ -189,6 +206,7 @@
                             android:layout_height="wrap_content"
                             android:inputType="number"
                             android:text=""
+                            android:textColor="#ffffff"
                             android:textSize="22sp"
                             android:hint="8080"/>
                     </LinearLayout>
@@ -199,6 +217,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textSize="22sp"
+                            android:textColor="#ffffff"
                             android:text="对以下网站不使用代理"/>
                         <EditText
                             android:id="@+id/et_proxy_filter"
@@ -207,6 +226,7 @@
                             android:inputType="text"
                             android:text=""
                             android:textSize="22sp"
+                            android:textColor="#ffffff"
                             android:hint="example.com,mycomp.test.com,localhost"/>
                     </LinearLayout>
                 </LinearLayout>
@@ -237,6 +257,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:textColor="#ffffff"
                             android:textSize="22sp"
                             android:text="IP地址"/>
                         <EditText
@@ -244,6 +265,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="text"
+                            android:textColor="#ffffff"
                             android:text=""
                             android:textSize="22sp"
                             android:hint="192.168.1.128"/>
@@ -255,6 +277,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textSize="22sp"
+                            android:textColor="#ffffff"
                             android:text="网关"/>
                         <EditText
                             android:id="@+id/et_gateway"
@@ -262,6 +285,7 @@
                             android:layout_height="wrap_content"
                             android:inputType="text"
                             android:text=""
+                            android:textColor="#ffffff"
                             android:textSize="22sp"
                             android:hint="192.168.1.1"/>
                     </LinearLayout>
@@ -271,6 +295,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:textColor="#ffffff"
                             android:textSize="22sp"
                             android:text="网络前缀长度"/>
                         <EditText
@@ -279,6 +304,7 @@
                             android:layout_height="wrap_content"
                             android:inputType="number"
                             android:text=""
+                            android:textColor="#ffffff"
                             android:textSize="22sp"
                             android:hint="24"/>
                     </LinearLayout>
@@ -289,6 +315,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textSize="22sp"
+                            android:textColor="#ffffff"
                             android:text="域名1"/>
                         <EditText
                             android:id="@+id/et_dns1"
@@ -296,6 +323,7 @@
                             android:layout_height="wrap_content"
                             android:inputType="text"
                             android:text=""
+                            android:textColor="#ffffff"
                             android:textSize="22sp"
                             android:hint="8.8.8.8"/>
                     </LinearLayout>
@@ -305,6 +333,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:textColor="#ffffff"
                             android:textSize="22sp"
                             android:text="域名2"/>
                         <EditText
@@ -313,6 +342,7 @@
                             android:layout_height="wrap_content"
                             android:inputType="text"
                             android:text=""
+                            android:textColor="#ffffff"
                             android:textSize="22sp"
                             android:hint="8.8.4.4"/>
                     </LinearLayout>
@@ -322,14 +352,14 @@
     </ScrollView>
     <include
         android:id="@+id/layout_not_connect"
-        layout="@layout/include_wifi_detail_not_connect"
+        layout="@layout/ldklz_carcool_wifi_include_wifi_detail_not_connect"
         android:layout_width="match_parent"
-        android:layout_height="50px"
+        android:layout_height="100px"
         android:layout_alignParentBottom="true"/>
     <include 
         android:id="@+id/layout_connect"
-        layout="@layout/include_wifi_detail_connect"
+        layout="@layout/ldklz_carcool_wifi_include_wifi_detail_connect"
         android:layout_width="match_parent"
-        android:layout_height="50px"
+        android:layout_height="100px"
         android:layout_alignParentBottom="true" />
 </RelativeLayout>
